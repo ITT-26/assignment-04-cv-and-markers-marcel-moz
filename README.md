@@ -14,7 +14,7 @@
 |`--out_height`| target height for the warped output image | yes | - |
 
 - example with minimum parameters: `python .\image_extractor.py --out_width 750 --out_height 500` 
- ( you need to move to  [`perspective_transformation`](./perspective_transformation/) if you want to use default image)
+ ( you need to move to  [`perspective_transformation`](./perspective_transformation/) if you want to use the default image)
 - example with all options/parameters: `python .\image_extractor.py --input .\sample_image.jpg --name result  --outdir results --out_width 750 --out_height 500`
 
 - When the program is running you can click in the `Preview Window` to select four points in the image to have a region to extract from
