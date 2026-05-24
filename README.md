@@ -14,7 +14,6 @@
 
 - example with minimum parameters: `python .\image_extractor.py --out_width 750 --out_height 500`
 - example with all options/parameters: `python .\image_extractor.py --input .\sample_image.jpg --name result  --outdir results --out_width 750 --out_height 500`
-q
 
 - When the program is running you can click in the `Preview Window` to select four points in the image to have a region to extract from
 - After you select four points the `Result Window` will open so you can view the warped image
