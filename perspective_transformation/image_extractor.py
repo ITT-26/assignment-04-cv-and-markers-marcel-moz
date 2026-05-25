@@ -3,49 +3,6 @@ from pathlib import Path
 import argparse
 import numpy as np
 
-# ArgumentParser Code from ChatGPT after intial version working with position of arguments only (without ArgumentParser)
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("--input", default="sample_image.jpg", help="input image path")
-parser.add_argument("--outdir", default="extracted", help="output directory")
-parser.add_argument("--name", default=None, help="output file name (optional)")
-parser.add_argument("--out_width", type=int, required=True, help="output image width (required)")
-parser.add_argument("--out_height", type=int, required=True, help="output image height (required)")
-
-args = parser.parse_args()
-
-input_file = Path(args.input)
-og_img = cv2.imread(str(input_file))
-
-if og_img is None:
-    print(f"Error reading file: {input_file}. Try again with another file.")
-    exit()
-
-output_directory = Path(args.outdir)
-
-if args.name:
-    result_file_name = Path(args.name).with_suffix(input_file.suffix)
-else:
-    result_file_name = Path(f"{input_file.stem}_extracted{input_file.suffix}")
-    
-target_width = args.out_width
-target_height = args.out_height
-
-# until here altered by ChatGPT
-
-version_counter = 1
-result_stem_without_version = result_file_name.stem
-img = og_img.copy()
-warped_img = None
-
-marker_positions = []
-
-result_saved = False
-
-PREVIEW_WINDOW_NAME = "Preview Window"
-RESULT_WINDOW_NAME = "Result Window"
-
 
 def mouse_callback(event, x, y, flags, param):
     global img
@@ -62,7 +19,7 @@ def mouse_callback(event, x, y, flags, param):
 
 def discard_markers():
     global img, warped_img
-
+    
     marker_positions.clear()
     img = og_img.copy()
     warped_img = None
@@ -74,8 +31,8 @@ def show_success_msg_saving(warped_img, file_path):
 
 
 def get_result_file_with_version():
-    global version_counter, result_stem_without_version, result_file_name
-
+    global result_file_name, version_counter
+    
     while (output_directory / result_file_name).exists():
 
         result_file_name = Path(
@@ -113,10 +70,8 @@ def get_vector_distance(point1, point2):
     return np.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
 
 
+def get_warped_image(img, sorted_markers, target_width, target_height):
 
-def get_warped_image(img, sorted_markers):
-    global target_width, target_height
-    
     target_top_left = [0, 0]
     traget_top_right = [target_width, 0]
     traget_bottom_right = [target_width, target_height]
@@ -136,38 +91,94 @@ def get_warped_image(img, sorted_markers):
 
 def perform_warping(img, markers):
     sorted_markers = np.float32(sort_markers(markers))
-    return get_warped_image(img, sorted_markers)
+    return get_warped_image(img, sorted_markers, target_width, target_height)
 
 
-cv2.namedWindow(PREVIEW_WINDOW_NAME)
+def main():
+    # ArgumentParser Code from ChatGPT after intial version working with position of arguments only (without ArgumentParser)
+    global version_counter, result_stem_without_version, result_file_name, output_directory
+    global img, warped_img
+    global target_width, target_height
+    global img, og_img, marker_positions
+    
+    parser = argparse.ArgumentParser()
 
-cv2.setMouseCallback(PREVIEW_WINDOW_NAME, mouse_callback)
+    parser.add_argument("--input", default="sample_image.jpg", help="input image path")
+    parser.add_argument("--outdir", default="extracted", help="output directory")
+    parser.add_argument("--name", default=None, help="output file name (optional)")
+    parser.add_argument(
+        "--out_width", type=int, required=True, help="output image width (required)"
+    )
+    parser.add_argument(
+        "--out_height", type=int, required=True, help="output image height (required)"
+    )
 
-while True:
+    args = parser.parse_args()
 
-    cv2.imshow(PREVIEW_WINDOW_NAME, img)
+    input_file = Path(args.input)
+    og_img = cv2.imread(str(input_file))
 
-    key = cv2.waitKey(1) & 0xFF
-    if key == ord("q"):
-        break
+    if og_img is None:
+        print(f"Error reading file: {input_file}. Try again with another file.")
+        exit()
 
-    elif key == 27:  # 27 == ESCAPE key
-        discard_markers()
-        result_saved = False
-        try:
-            cv2.destroyWindow(RESULT_WINDOW_NAME)
-        except:
-            pass
-        # close result window (if open)
+    output_directory = Path(args.outdir)
 
-    if len(marker_positions) == 4:
-        if warped_img is None:
-            warped_img = perform_warping(og_img.copy(), np.array(marker_positions))
-            # hier image warp
+    if args.name:
+        result_file_name = Path(args.name).with_suffix(input_file.suffix)
+    else:
+        result_file_name = Path(f"{input_file.stem}_extracted{input_file.suffix}")
 
-        cv2.namedWindow(RESULT_WINDOW_NAME)
-        cv2.imshow(RESULT_WINDOW_NAME, warped_img)
+    target_width = args.out_width
+    target_height = args.out_height
 
-        if key == ord("s") and not result_saved:
-            save_image(warped_img)
-            result_saved = True
+    # until here altered by ChatGPT
+
+    version_counter = 1
+    result_stem_without_version = result_file_name.stem
+    img = og_img.copy()
+    warped_img = None
+
+    marker_positions = []
+
+    result_saved = False
+
+    PREVIEW_WINDOW_NAME = "Preview Window"
+    RESULT_WINDOW_NAME = "Result Window"
+
+    cv2.namedWindow(PREVIEW_WINDOW_NAME)
+
+    cv2.setMouseCallback(PREVIEW_WINDOW_NAME, mouse_callback)
+
+    while True:
+
+        cv2.imshow(PREVIEW_WINDOW_NAME, img)
+
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord("q"):
+            break
+
+        elif key == 27:  # 27 == ESCAPE key
+            discard_markers()
+            result_saved = False
+            try:
+                cv2.destroyWindow(RESULT_WINDOW_NAME)
+            except:
+                pass
+            # close result window (if open)
+
+        if len(marker_positions) == 4:
+            if warped_img is None:
+                warped_img = perform_warping(og_img.copy(), np.array(marker_positions))
+                # hier image warp
+
+            cv2.namedWindow(RESULT_WINDOW_NAME)
+            cv2.imshow(RESULT_WINDOW_NAME, warped_img)
+
+            if key == ord("s") and not result_saved:
+                save_image(warped_img)
+                result_saved = True
+
+
+if __name__ == "__main__":
+    main()
