@@ -63,7 +63,7 @@ class SpiderGame:
         self.center_text = pyglet.text.Label(
             "Show the game board to start!",
             font_name="Arial",
-            font_size=28,
+            font_size=52,
             multiline=True,
             x=self.window.width // 2,
             y=self.window.height // 2,
@@ -79,7 +79,7 @@ class SpiderGame:
         self.lives_text = pyglet.text.Label(
             "Lives: 5",
             font_name="Arial",
-            font_size=28,
+            font_size=72,
             x=20,
             y=self.window.height - 20,
             anchor_x="left",
@@ -180,11 +180,14 @@ class SpiderGame:
             self.end_game_after_cheating(cheating_message)
 
     def check_for_cheating_too_much_hand(self, processed_frame):
+        # mostly relevant for smaller resolution but hand in middle is better cheating detection
+        # view cases where this is relevant bc u prbobaly hit middle earlier anyway
+        
         black_pixels = np.sum(processed_frame == 0)
         ratio = black_pixels / processed_frame.size
         
-        HAND_THRESHOLD = 0.05
-        
+        HAND_THRESHOLD = 0.35
+
         if ratio > HAND_THRESHOLD:
             cheating_message = "You can't use this much of your hand!"
             self.end_game_after_cheating(cheating_message)

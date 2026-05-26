@@ -94,7 +94,7 @@ def update_game(dt):
     if game.has_ended:
         score = game.get_score_from_runtime()
         if game.player_cheated:
-            game.center_text.text = f"You cheated!\n Your score is {score}!\n{game.cheating_message}\nSPACE = restart\nESC = close"
+            game.center_text.text = f"Game Over!\n{game.cheating_message}\nYour score is {score}!\nSPACE = restart\nESC = close"
         else:
             game.center_text.text = f"Game Over! You died.\n Your score is {score}!\nSPACE = restart\nESC = close"
     if not game.has_ended:
@@ -164,7 +164,7 @@ def on_draw():
 
     if transformed_frame is not None:
         processed_frame = image_processing.process_frame(
-            transformed_frame, show_result=True
+            transformed_frame, show_result=False
         )
 
     img.blit(0, 0, 0)

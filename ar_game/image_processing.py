@@ -37,13 +37,23 @@ def process_frame(transformed_frame, show_result=False):
     
 
     frame_grey = cv2.cvtColor(transformed_frame, cv2.COLOR_BGR2GRAY)
-
-    kernel_size = 8
+    
+    h, w = frame_grey.shape
+    
+    KERNEL_DIVISOR = 80 # kernel needs to be bigger
+    BLOCK_DIVISOR = 100
+    
+    kernel_size = max(9, (h // KERNEL_DIVISOR) | 1) 
+    block_size = max(7, (h // BLOCK_DIVISOR) | 1)  
+    
+    if block_size % 2 == 0:
+        block_size += 1 
+    
     kernel = np.ones((kernel_size, kernel_size), np.float64)
     kernel /= kernel_size**2
     frame_blur = cv2.filter2D(frame_grey, -1, kernel)
 
-    block_size = 7
+    
 
     thresh_adaptive = cv2.adaptiveThreshold(
         frame_blur,
