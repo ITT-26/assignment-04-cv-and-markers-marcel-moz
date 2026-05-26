@@ -115,7 +115,7 @@ class SpiderGame:
         SPEED_STEP = 0.05
         if self.speed_divisor > MIN_DIVISOR:
             self.speed_divisor -= SPEED_STEP
-            
+
         MIN_INTERVAL = 0.25
         SPAWN_STEP = 0.005
         if self.spawn_interval > MIN_INTERVAL:
@@ -133,24 +133,23 @@ class SpiderGame:
                 break  # break bc only 1 at a time reaches end due to spawn interval
 
     def destroy_hit_spiders(self, processed_frame):
-
-        for spider in self.spiders.copy():
+        HIT_THRESHOLD = 0.0125
+        
+        for spider in self.spiders[:]:
             # only do stuff if spider is in frame
-            if spider.x <= self.window.width:
-                
+            if spider.x <= self.window.width // 3:
+                # only in left third (only 1/4 of space on left is allowed anyway)
                 spider_cv_x, spider_cv_y = opencv_pyglet.convert_pyglet_to_cv_coords(
                     self.window.height, int(spider.x), int(spider.y)
                 )
-                
+
                 spider_frame_cropped = processed_frame[
                     spider_cv_y : spider_cv_y + spider.height,
                     spider_cv_x : spider_cv_x + spider.width,
                 ]
 
-                black_pixels = np.sum(spider_frame_cropped == 0)
+                black_pixels = np.count_nonzero(spider_frame_cropped == 0)
                 ratio = black_pixels / spider_frame_cropped.size
-
-                HIT_THRESHOLD = 0.0125
 
                 if ratio > HIT_THRESHOLD:
                     self.spiders.remove(spider)
@@ -182,10 +181,10 @@ class SpiderGame:
     def check_for_cheating_too_much_hand(self, processed_frame):
         # mostly relevant for smaller resolution but hand in middle is better cheating detection
         # view cases where this is relevant bc u prbobaly hit middle earlier anyway
-        
+
         black_pixels = np.sum(processed_frame == 0)
         ratio = black_pixels / processed_frame.size
-        
+
         HAND_THRESHOLD = 0.35
 
         if ratio > HAND_THRESHOLD:
