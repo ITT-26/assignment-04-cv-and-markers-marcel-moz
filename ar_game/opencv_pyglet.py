@@ -24,3 +24,9 @@ def cv2glet(img, fmt):
         pitch=top_to_bottom_flag * bytes_per_row,
     )
     return pyimg
+
+
+def convert_pyglet_to_cv_coords(window_height, pyglet_x, pyglet_y):
+    cv_x = pyglet_x
+    cv_y = window_height - pyglet_y
+    return cv_x, cv_y

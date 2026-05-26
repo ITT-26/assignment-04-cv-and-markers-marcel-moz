@@ -19,7 +19,7 @@ def mouse_callback(event, x, y, flags, param):
 
 def discard_markers():
     global img, warped_img
-    
+
     marker_positions.clear()
     img = og_img.copy()
     warped_img = None
@@ -32,7 +32,7 @@ def show_success_msg_saving(warped_img, file_path):
 
 def get_result_file_with_version():
     global result_file_name, version_counter
-    
+
     while (output_directory / result_file_name).exists():
 
         result_file_name = Path(
@@ -89,7 +89,7 @@ def get_warped_image(img, sorted_markers, target_width, target_height):
     return warped
 
 
-def perform_warping(img, markers):
+def perform_warping(img, markers, target_width, target_height):
     sorted_markers = np.float32(sort_markers(markers))
     return get_warped_image(img, sorted_markers, target_width, target_height)
 
@@ -100,7 +100,7 @@ def main():
     global img, warped_img
     global target_width, target_height
     global img, og_img, marker_positions
-    
+
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--input", default="sample_image.jpg", help="input image path")
@@ -169,7 +169,12 @@ def main():
 
         if len(marker_positions) == 4:
             if warped_img is None:
-                warped_img = perform_warping(og_img.copy(), np.array(marker_positions))
+                warped_img = perform_warping(
+                    og_img.copy(),
+                    np.array(marker_positions),
+                    target_width,
+                    target_height,
+                )
                 # hier image warp
 
             cv2.namedWindow(RESULT_WINDOW_NAME)
