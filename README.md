@@ -29,8 +29,8 @@
 - Show your ARUCO board to play (see instructions in game)
 - It is best to hold the board at the edge on either the bottom or top. The board needs to be presented horizontally.
 - Place one hand on the left side of the board
-- Use one or two fingers (not more) to destroy spiders by moving your fingertips to their (vertical) poistion
-- Be careful not no move your fingers too far towards the middle. That's considered cheating! As a guideline: If your other fingers are tucked away behind the board and your knuckles don't show up on the board you are fine. 
+- Form a (snake) mouth with your hand and use it to destroy (eat) spiders by moving your figers to their (vertical) poistion
+- Be careful not no move your fingers too far towards the middle. That's considered cheating! As a guideline: If your knuckles don't show up on the board you are fine. 
 
 
 ![Example setup for playing the AR game](./ar_game/assets/setup.png)

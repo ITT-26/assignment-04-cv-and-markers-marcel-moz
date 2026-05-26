@@ -150,7 +150,7 @@ class SpiderGame:
                 black_pixels = np.sum(spider_frame_cropped == 0)
                 ratio = black_pixels / spider_frame_cropped.size
 
-                HIT_THRESHOLD = 0.01
+                HIT_THRESHOLD = 0.0125
 
                 if ratio > HIT_THRESHOLD:
                     self.spiders.remove(spider)
@@ -182,7 +182,9 @@ class SpiderGame:
     def check_for_cheating_too_much_hand(self, processed_frame):
         black_pixels = np.sum(processed_frame == 0)
         ratio = black_pixels / processed_frame.size
-        THRESHOLD = 0.05
-        if ratio > THRESHOLD:
+        
+        HAND_THRESHOLD = 0.05
+        
+        if ratio > HAND_THRESHOLD:
             cheating_message = "You can't use this much of your hand!"
             self.end_game_after_cheating(cheating_message)
