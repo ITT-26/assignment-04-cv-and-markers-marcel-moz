@@ -25,6 +25,7 @@
 
 # 2 AR Game
 - Install the required packages from [`requirements.txt`](requirements.txt)
+- Make sure that the code from task 1 is also available since task 2 uses it. You need this whole repository for task 2.
 - Run [`AR_game.py`](./ar_game/AR_game.py) located in [`ar_game`](./ar_game/) via command line `python .\AR_game.py`
 - Show your ARUCO board to play (see instructions in game)
 - It is best to hold the board at the edge on either the bottom or top. The board needs to be presented horizontally.
