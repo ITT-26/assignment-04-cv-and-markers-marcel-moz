@@ -63,7 +63,7 @@ class SpiderGame:
         self.center_text = pyglet.text.Label(
             "Show the game board to start!",
             font_name="Arial",
-            font_size=52,
+            font_size=72,
             multiline=True,
             x=self.window.width // 2,
             y=self.window.height // 2,
@@ -79,7 +79,7 @@ class SpiderGame:
         self.lives_text = pyglet.text.Label(
             "Lives: 5",
             font_name="Arial",
-            font_size=72,
+            font_size=60,
             x=20,
             y=self.window.height - 20,
             anchor_x="left",

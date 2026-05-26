@@ -172,6 +172,6 @@ def on_draw():
     batch.draw()
 
 
-pyglet.clock.schedule_interval(update_game, 0.0125)  # 80 fps goal
+pyglet.clock.schedule_interval(update_game, 0.0125)  # 80 fps goal works only on low res
 
 pyglet.app.run()
