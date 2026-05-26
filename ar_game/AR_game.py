@@ -22,6 +22,14 @@ if len(sys.argv) > 1:
 
 cap = cv2.VideoCapture(video_id)
 
+try:
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, sys.maxsize)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT,  sys.maxsize)
+    # just use maxsize bc these methods somehow falls back to biggest possible (!) resolution anyway 
+except:
+    pass # just in case
+
+
 frame_width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
 frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
@@ -29,6 +37,23 @@ frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 window = pyglet.window.Window(frame_width, frame_height)
 
 aruco = ArucoDetector()
+
+
+last_timestamp = time.time()
+time_without_board = 0
+last_corners = None
+
+game = SpiderGame(window)
+
+batch = pyglet.graphics.Batch()
+
+text_group = pyglet.graphics.Group(order=1)
+
+
+game.create_lives_text(batch)
+game.create_center_text(batch)
+
+processed_frame = None
 
 
 def get_points_for_outer_rect(points):
@@ -57,71 +82,25 @@ def transform_frame_with_corners(frame, corners):
     return transformed_frame
 
 
-def create_lives_text(batch, text_group):
-    return pyglet.text.Label(
-        "Lives: 5",
-        font_name="Arial",
-        font_size=28,
-        x=20,
-        y=window.height - 20,
-        anchor_x="left",
-        anchor_y="top",
-        batch=batch,
-        group=text_group,
-        color=(200, 0, 0),
-    )
-
-
-def create_center_text(batch):
-    center_text = pyglet.text.Label(
-        "Show the game board to start!",
-        font_name="Arial",
-        font_size=28,
-        multiline=True,
-        x=window.width // 2,
-        y=window.height // 2,
-        batch=batch,
-        anchor_x="center",
-        anchor_y="center",
-        width=window.width // 1.25,
-        color=(200, 0, 0),
-        align="center",
-    )
-    return center_text
-
-
-last_timestamp = time.time()
-time_without_board = 0
-last_corners = None
-
-game = SpiderGame(window)
-
-batch = pyglet.graphics.Batch()
-
-text_group = pyglet.graphics.Group(order=1)
-
-
-lives_text = create_lives_text(batch, text_group)
-center_text = create_center_text(batch)
-processed_frame = None
-
-
 @window.event
 def on_key_press(symbol, modifiers):
-    global game, center_text
+    global game, batch
 
     if symbol == pyglet.window.key.ESCAPE:
         window.close()
         pyglet.app.exit()
     elif symbol == pyglet.window.key.SPACE and game.has_ended:
         game = SpiderGame(window)
-        center_text.text = "Show the game board to start!"
+        batch = pyglet.graphics.Batch()
+        game.create_lives_text(batch)
+        game.create_center_text(batch)
+        game.center_text.text = "Show the game board to start!"
 
 
 def update_game(dt):
-    global center_text, batch, processed_frame
+    batch, processed_frame
 
-    lives_text.text = f"Lives: {game.lives}"
+    game.lives_text.text = f"Lives: {game.lives}"
 
     if game.lives == 0:
         game.end()
@@ -129,35 +108,22 @@ def update_game(dt):
     if game.has_ended:
         score = game.get_score_from_runtime()
         if game.player_cheated:
-            center_text.text = f"You cheated!\n Your score is 0!\n{game.cheating_message}\nSPACE = restart\nESC = close"
+            game.center_text.text = f"You cheated!\n Your score is 0!\n{game.cheating_message}\nSPACE = restart\nESC = close"
         else:
-            center_text.text = f"Game Over! You died.\n Your score is {score}!\nSPACE = restart\nESC = close"
+            game.center_text.text = f"Game Over! You died.\n Your score is {score}!\nSPACE = restart\nESC = close"
     if not game.has_ended:
         if not game.is_paused and not game.is_started:
-            game.run_time += dt
-            if game.run_time <= 1:
-                center_text.text = "3"
-            elif game.run_time <= 2:
-                center_text.text = "2"
-            elif game.run_time <= 3:
-                center_text.text = "1"
-            elif game.run_time <= 4:
-                center_text.text = "Start!"
-            else:
-                game.start()
-                game.run_time = 0
-                center_text.text = ""
-
+            game.update_countdown(dt)
         if game.is_paused and game.is_started:
-            center_text.text = "Game paused! Show board to resume!"
+            game.center_text.text = "Game paused! Show board to resume!"
 
         if not game.is_paused and game.is_started:
-            center_text.text = ""
+            game.center_text.text = ""
             game.run_time += dt
-            if game.run_time > game.last_spawn + game.SPAWN_INTERVAL:
+            if game.run_time > game.last_spawn + game.spawn_interval:
                 game.create_spider(batch)
                 game.last_spawn = game.run_time
-                game.increase_movement_speed()
+                game.increase_game_speed()
             game.move_spiders(dt)
             game.check_spiders_reach_end()
             if processed_frame is not None:
@@ -165,7 +131,6 @@ def update_game(dt):
                 if game.cheating_detection_running:
                     game.check_for_cheating_hand_mid(processed_frame)
                     game.check_for_cheating_too_much_hand(processed_frame)
-            
 
 
 @window.event
@@ -212,13 +177,15 @@ def on_draw():
         img = opencv_pyglet.cv2glet(cv_frame, "BGR")
 
     if transformed_frame is not None:
-        processed_frame = image_processing.process_frame(transformed_frame, show_result=False)
+        processed_frame = image_processing.process_frame(
+            transformed_frame, show_result=False
+        )
 
     img.blit(0, 0, 0)
 
     batch.draw()
 
 
-pyglet.clock.schedule_interval(update_game, 0.02)  # 50 fps
+pyglet.clock.schedule_interval(update_game, 0.01)  # 100 fps
 
 pyglet.app.run()
