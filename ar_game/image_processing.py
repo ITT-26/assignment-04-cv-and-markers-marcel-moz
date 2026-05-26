@@ -20,6 +20,19 @@ class ArucoDetector:
         return corners, ids, rejectedImgPoints
 
 
+def get_points_for_outer_rect(points):
+    sum = np.sum(points, axis=1)
+    diff = np.diff(points, axis=1)
+
+    top_left = points[np.argmin(sum)]
+    top_right = points[np.argmin(diff)]
+    bottom_right = points[np.argmax(sum)]
+    bottom_left = points[np.argmax(diff)]
+
+    return np.float32(np.array([top_left, top_right, bottom_right, bottom_left]))
+
+
+
 def process_frame(transformed_frame, show_result=False):
     
 

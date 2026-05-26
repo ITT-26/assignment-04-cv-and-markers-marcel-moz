@@ -1,11 +1,9 @@
-import cv2
 import numpy as np
-import pyglet, time
+import pyglet, time, cv2, image_processing
 from PIL import Image
 import sys, opencv_pyglet
 from pathlib import Path
 from image_processing import ArucoDetector
-import image_processing
 from spider_game import SpiderGame
 from pyglet.window import key
 
@@ -56,18 +54,6 @@ game.create_center_text(batch)
 processed_frame = None
 
 
-def get_points_for_outer_rect(points):
-    sum = np.sum(points, axis=1)
-    diff = np.diff(points, axis=1)
-
-    top_left = points[np.argmin(sum)]
-    top_right = points[np.argmin(diff)]
-    bottom_right = points[np.argmax(sum)]
-    bottom_left = points[np.argmax(diff)]
-
-    return np.float32(np.array([top_left, top_right, bottom_right, bottom_left]))
-
-
 def transform_frame_with_corners(frame, corners):
     marker_points = []
     for marker in corners:
@@ -75,7 +61,7 @@ def transform_frame_with_corners(frame, corners):
         marker_points.extend(points)
     marker_points = np.array(marker_points, dtype=np.float32)
 
-    outer_rect = get_points_for_outer_rect(marker_points)
+    outer_rect = image_processing.get_points_for_outer_rect(marker_points)
     transformed_frame = extractor.perform_warping(
         frame, outer_rect, frame_width, frame_height
     )
