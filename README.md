@@ -33,6 +33,7 @@
 - Be careful not no move your fingers too far towards the middle. That's considered cheating! As a guideline: If your other fingers are tucked away behind the board and your knuckles don't show up on the board you are fine. 
 
 ![Example setup for playing the AR game](./ar_game/assets/setup.png)
+
 Example setup for playing the AR game
 
 - Don't let the spiders reach the end (left side of the board). You have 5 lives. 
